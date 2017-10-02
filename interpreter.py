@@ -1,5 +1,6 @@
 # EOF means End-Of-File
 INTEGER, PLUS, EOF = 'INTEGER', 'PLUS', 'EOF'
+MINUS = 'MINUS'
 
 
 class Token(object):
@@ -21,30 +22,51 @@ class Interpreter(object):
         self.text = text
         self.pos = 0
         self.currentToken = None
+        self.current_char = self.text[self.pos]
     
-    @staticmethod
-    def error():
+    def error(self):
         raise Exception('Error parsing input')
     
+    def advance(self):
+        self.pos += 1
+        if self.pos > len(self.text) -1:
+            self.current_char = None
+        else:
+            self.current_char = self.text[self.pos]
+    
+    def skip_whitespace(self):
+        while self.current_char is not None and self.current_char.isspace():
+            self.advance()
+    
+    def integer(self):
+        result = ''
+        while self.current_char is not None and self.current_char.isdigit():
+            result += self.current_char
+            self.advance()
+        return int(result)
+    
     def get_next_token(self):
-        text = self.text
         
-        if self.pos > len(text) - 1:
-            return Token(EOF, None)
+        while self.current_char is not None:
+            
+            if self.current_char.isspace():
+                self.skip_whitespace()
+                continue
         
-        current_char = text[self.pos]
+            if self.current_char.isdigit():
+                return Token(INTEGER, self.integer())
+            
+            if self.current_char == '+':
+                self.advance()
+                return Token(PLUS, '+')
+            
+            if self.current_char == '-':
+                self.advance()
+                return Token(MINUS, '-')
         
-        if current_char.isdigit():
-            token = Token(INTEGER, int(current_char))
-            self.pos += 1
-            return token
+            self.error()
         
-        if current_char == '+':
-            token = Token(PLUS, current_char)
-            self.pos += 1
-            return token
-        
-        self.error()
+        return Token(EOF, None)
     
     def eat(self, token_type):
         if self.currentToken.type == token_type:
@@ -58,14 +80,21 @@ class Interpreter(object):
         
         left = self.currentToken
         self.eat(INTEGER)
-        
+        12
         op = self.currentToken
-        self.eat(PLUS)
+        if op.type == PLUS:
+            self.eat(PLUS)
+        elif op.type == MINUS:
+            self.eat(MINUS)
         
         right = self.currentToken
         self.eat(INTEGER)
         
-        result = left.value + right.value
+        if op.type == PLUS:
+            result = left.value + right.value
+        else:
+            result = left.value - right.value
+        
         return result
 
 
