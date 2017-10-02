@@ -24,7 +24,7 @@ class Interpreter(object):
     
     @staticmethod
     def error():
-        raise Exception('Error parsing input');
+        raise Exception('Error parsing input')
     
     def get_next_token(self):
         text = self.text
