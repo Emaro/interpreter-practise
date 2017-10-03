@@ -4,7 +4,9 @@ MINUS = 'MINUS'
 MULTIPLY = 'MULTIPLY'
 DIVIDE = 'DIVIDE'
 
-OPERATORS = [PLUS, MINUS, MULTIPLY, DIVIDE]
+OPERATORS = (PLUS, MINUS, MULTIPLY, DIVIDE)
+
+
 
 class Token(object):
     def __init__(self, type, value):
@@ -24,7 +26,7 @@ class Interpreter(object):
     def __init__(self, text):
         self.text = text
         self.pos = 0
-        self.currentToken = None
+        self.current_token = None
         self.current_char = self.text[self.pos]
     
     def error(self):
@@ -80,37 +82,37 @@ class Interpreter(object):
         return Token(EOF, None)
     
     def eat(self, token_type):
-        if self.currentToken.type == token_type:
-            self.currentToken = self.get_next_token()
+        if self.current_token.type == token_type:
+            self.current_token = self.get_next_token()
         else:
             self.error()
     
+    def term(self):
+        token = self.current_token
+        self.eat(INTEGER)
+        return token.value
+    
     def expression(self):
         # INTEGER PLUS INTEGER
-        self.currentToken = self.get_next_token()
+        self.current_token = self.get_next_token()
         
-        left = self.currentToken
-        self.eat(INTEGER)
+        result = self.term()
         
-        result = left.value
-        
-        op = self.currentToken
-        while op.type in OPERATORS:
-            self.eat(op.type)
+        while self.current_token.type in OPERATORS:
+            token = self.current_token
             
-            next_int = self.currentToken
-            self.eat(INTEGER)
-
-            if op.type == PLUS:
-                result = result + next_int.value
-            elif op.type == MINUS:
-                result = result - next_int.value
-            elif op.type == MULTIPLY:
-                result = result * next_int.value
-            else:
-                result = result / next_int.value
-                
-            op = self.currentToken
+            if token.type == PLUS:
+                self.eat(PLUS)
+                result = result + self.term()
+            elif token.type == MINUS:
+                self.eat(MINUS)
+                result = result - self.term()
+            elif token.type == MULTIPLY:
+                self.eat(MULTIPLY)
+                result = result * self.term()
+            elif token.type == DIVIDE:
+                self.eat(DIVIDE)
+                result = result / self.term()
         
         return result
 
