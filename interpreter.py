@@ -1,7 +1,10 @@
 # EOF means End-Of-File
 INTEGER, PLUS, EOF = 'INTEGER', 'PLUS', 'EOF'
 MINUS = 'MINUS'
+MULTIPLY = 'MULTIPLY'
+DIVIDE = 'DIVIDE'
 
+OPERATORS = [PLUS, MINUS, MULTIPLY, DIVIDE]
 
 class Token(object):
     def __init__(self, type, value):
@@ -63,6 +66,14 @@ class Interpreter(object):
             if self.current_char == '-':
                 self.advance()
                 return Token(MINUS, '-')
+            
+            if self.current_char == '*':
+                self.advance()
+                return Token(MULTIPLY, '*')
+            
+            if self.current_char == '/':
+                self.advance()
+                return Token(DIVIDE, '/')
         
             self.error()
         
@@ -80,20 +91,26 @@ class Interpreter(object):
         
         left = self.currentToken
         self.eat(INTEGER)
-        12
+        
+        result = left.value
+        
         op = self.currentToken
-        if op.type == PLUS:
-            self.eat(PLUS)
-        elif op.type == MINUS:
-            self.eat(MINUS)
-        
-        right = self.currentToken
-        self.eat(INTEGER)
-        
-        if op.type == PLUS:
-            result = left.value + right.value
-        else:
-            result = left.value - right.value
+        while op.type in OPERATORS:
+            self.eat(op.type)
+            
+            next_int = self.currentToken
+            self.eat(INTEGER)
+
+            if op.type == PLUS:
+                result = result + next_int.value
+            elif op.type == MINUS:
+                result = result - next_int.value
+            elif op.type == MULTIPLY:
+                result = result * next_int.value
+            else:
+                result = result / next_int.value
+                
+            op = self.currentToken
         
         return result
 
