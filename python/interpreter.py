@@ -112,7 +112,7 @@ class Interpreter(object):
                 result = result * self.term()
             elif token.type == DIVIDE:
                 self.eat(DIVIDE)
-                result = result / self.term()
+                result = int(result / self.term())
         
         return result
 
