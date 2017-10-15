@@ -7,7 +7,6 @@ DIVIDE = 'DIVIDE'
 OPERATORS = (PLUS, MINUS, MULTIPLY, DIVIDE)
 
 
-
 class Token(object):
     def __init__(self, type, value):
         # token type = INTEGER, PLUS or EOF
@@ -22,19 +21,18 @@ class Token(object):
         return self.__str__()
 
 
-class Interpreter(object):
+class Lexer(object):
     def __init__(self, text):
         self.text = text
         self.pos = 0
-        self.current_token = None
         self.current_char = self.text[self.pos]
     
     def error(self):
-        raise Exception('Error parsing input')
+        raise Exception('Invalid character')
     
     def advance(self):
         self.pos += 1
-        if self.pos > len(self.text) -1:
+        if self.pos > len(self.text) - 1:
             self.current_char = None
         else:
             self.current_char = self.text[self.pos]
@@ -51,13 +49,12 @@ class Interpreter(object):
         return int(result)
     
     def get_next_token(self):
-        
         while self.current_char is not None:
             
             if self.current_char.isspace():
                 self.skip_whitespace()
                 continue
-        
+            
             if self.current_char.isdigit():
                 return Token(INTEGER, self.integer())
             
@@ -76,14 +73,23 @@ class Interpreter(object):
             if self.current_char == '/':
                 self.advance()
                 return Token(DIVIDE, '/')
-        
+            
             self.error()
         
         return Token(EOF, None)
+
+
+class Interpreter(object):
+    def __init__(self, lexer):
+        self.lexer = lexer
+        self.current_token = self.lexer.get_next_token()
+    
+    def error(self):
+        raise Exception('Invalid syntax')
     
     def eat(self, token_type):
         if self.current_token.type == token_type:
-            self.current_token = self.get_next_token()
+            self.current_token = self.lexer.get_next_token()
         else:
             self.error()
     
@@ -93,8 +99,6 @@ class Interpreter(object):
         return token.value
     
     def expression(self):
-        # INTEGER PLUS INTEGER
-        self.current_token = self.get_next_token()
         
         result = self.term()
         
@@ -120,12 +124,14 @@ class Interpreter(object):
 def main():
     while True:
         try:
-            text = input('calc>')
+            text = input('>')
         except EOFError:
             break
         if not text:
             continue
-        interpreter = Interpreter(text)
+        
+        lexer = Lexer(text)
+        interpreter = Interpreter(lexer)
         result = interpreter.expression()
         print(result)
 
