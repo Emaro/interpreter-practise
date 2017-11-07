@@ -8,9 +8,9 @@ OPERATORS = (PLUS, MINUS, MULTIPLY, DIVIDE)
 
 
 class Token(object):
-    def __init__(self, type, value):
+    def __init__(self, type_, value):
         # token type = INTEGER, PLUS or EOF
-        self.type = type
+        self.type = type_
         
         self.value = value
     

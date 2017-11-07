@@ -6,7 +6,7 @@ factor  : INTEGER
     and references to that rule become a method call: R().
     The body of the method follows the flow of the body of the rule using the very same guidelines.
 
-    Alternatives (a1 | a2 | aN) become an if-elif-else statement
+    Alternatives (a1 | a2 | aN) become an if-elseif-else statement
 
     An optional grouping (…)* becomes a while statement that can loop over zero or more times
 
